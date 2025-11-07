@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DinoFiles – Asystent plików (Beta)</title>
+  <link rel="icon" href="/assets/logo.svg">
+  <link rel="stylesheet" href="/styles.css"/>
+  <meta name="description" content="DinoFiles – połącz PDF, przekształć JPG/PNG na PDF A4, dopasuj skany jak ze skanera."/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="/assets/logo.svg" alt="DinoFiles logo" />
+      <div>
+        <h1>DinoFiles <span class="tag">BETA</span></h1>
+        <p class="subtitle">Połącz, konwertuj i dopasuj skany do A4 – w przeglądarce.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h2>📥 Przeciągnij pliki tutaj</h2>
+      <p class="muted">Obsługiwane: JPG, PNG, PDF (max 20 plików, 50 stron)</p>
+      <div id="dropzone" class="dropzone">Upuść tutaj lub <label for="fileInput" class="link">wybierz z dysku</label></div>
+      <input id="fileInput" type="file" multiple accept=".pdf,.jpg,.jpeg,.png" hidden />
+      <div id="fileList" class="file-list"></div>
+    </section>
+
+    <section class="panel actions">
+      <h2>⚙️ Akcje</h2>
+      <div class="buttons">
+        <button id="btnImgToPdf" class="btn primary">🖨️ JPG/PNG → PDF A4 (dopasuj jak skan)</button>
+        <button id="btnMergePdf" class="btn">🧩 Scal PDF</button>
+        <button id="btnClear" class="btn ghost">🧹 Wyczyść listę</button>
+      </div>
+      <p class="muted small">
+        Uwaga: przetwarzanie dzieje się lokalnie w Twojej przeglądarce (bez wysyłania plików na serwer).
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>⬇️ Wynik</h2>
+      <div id="output"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© 2025 DinoFiles • 100 narzędzi w 1 • Ta wersja działa w pełni w przeglądarce (demo).</span>
+  </footer>
+
+  <!-- pdf-lib from CDN -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
