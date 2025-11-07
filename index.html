@@ -1,57 +1,156 @@
 <!doctype html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>DinoFiles – Asystent plików (Beta)</title>
-  <link rel="icon" href="/assets/logo.svg">
-  <link rel="stylesheet" href="/styles.css"/>
-  <meta name="description" content="DinoFiles – połącz PDF, przekształć JPG/PNG na PDF A4, dopasuj skany jak ze skanera."/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DinoFiles • Smart Scan A4 (Beta)</title>
+<meta name="description" content="DinoFiles — dopasuj zdjęcia jak skan A4 i scal PDF. Wszystko lokalnie w przeglądarce.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='8' fill='%230d1a27'/%3E%3Cpath d='M14 30c-2 0-3-2-3-4 0-3 2-6 5-6l5-1c1 0 1-1 1-1l0-2c0-1 1-2 2-2h3c1 0 2 1 2 2l1 5c0 2-1 3-2 3l-6 2c0 0-1 1-1 2 0 1 1 2 2 2h9c2 0 4-1 5-3l3-6c1-2 0-4-2-5l-4-2-1-5c-1-2-3-4-5-4H22c-2 0-3 1-4 2l-4 4c-1 1-2 3-2 4v6c0 2 1 3 3 3h2' fill='%2300b050'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0b1520;--panel:#0f1c2a;--muted:#9fb3c8;--text:#e7f0f8;--accent:#27d07d;--line:#1e2a3a}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;background:linear-gradient(180deg,#0b1520,#0d1a27);color:var(--text)}
+.wrapper{max-width:980px;margin:24px auto;padding:0 16px}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.logo{width:34px;height:34px;border-radius:8px;background:#0d1a27;display:grid;place-items:center;border:1px solid var(--line)}
+.logo::before{content:'🦖';filter:saturate(1.3)}
+h1{margin:0;font-size:22px;font-weight:800;letter-spacing:.2px}
+.badge{font-size:12px;background:#113024;border:1px solid #1b633f;color:#9fe9c4;padding:2px 8px;border-radius:999px;margin-left:6px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.sub{color:var(--muted);margin:.25rem 0 0 0}
+.drop{border:2px dashed #2b3a4f;border-radius:14px;padding:26px;text-align:center;background:rgba(255,255,255,.02);color:#cfe2f7}
+.drop.drag{border-color:#5dc9ff;background:rgba(2,164,255,.1)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.btn{background:#152335;border:1px solid var(--line);color:#dff1ff;padding:10px 14px;border-radius:12px;cursor:pointer}
+.btn:hover{background:#1b2f4a}
+.btn.primary{background:linear-gradient(90deg,#16c273,#2fe096);color:#082312;border-color:#2e865b;font-weight:700}
+.files{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:#0b1824;border:1px solid #123040;color:#cfe9da;border-radius:999px;padding:6px 10px;font-size:13px}
+.small{font-size:13px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+a.link{color:#7feec3}
+.footer{color:#9bb8cd;margin:16px 0 40px}
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="/assets/logo.svg" alt="DinoFiles logo" />
-      <div>
-        <h1>DinoFiles <span class="tag">BETA</span></h1>
-        <p class="subtitle">Połącz, konwertuj i dopasuj skany do A4 – w przeglądarce.</p>
-      </div>
+<div class="wrapper">
+  <div class="header">
+    <div class="logo"></div>
+    <div>
+      <h1>DinoFiles <span class="badge">BETA</span></h1>
+      <p class="sub">Połącz, konwertuj i dopasuj skany do A4 — wszystko lokalnie w przeglądarce.</p>
     </div>
-  </header>
+  </div>
 
-  <main class="container">
-    <section class="panel">
-      <h2>📥 Przeciągnij pliki tutaj</h2>
-      <p class="muted">Obsługiwane: JPG, PNG, PDF (max 20 plików, 50 stron)</p>
-      <div id="dropzone" class="dropzone">Upuść tutaj lub <label for="fileInput" class="link">wybierz z dysku</label></div>
-      <input id="fileInput" type="file" multiple accept=".pdf,.jpg,.jpeg,.png" hidden />
-      <div id="fileList" class="file-list"></div>
-    </section>
+  <div class="card">
+    <h2>1) Dodaj pliki</h2>
+    <p class="sub">Obsługiwane: <span class="mono">JPG, PNG, PDF</span> (do 20 plików / 50 stron)</p>
+    <div id="drop" class="drop">Przeciągnij tutaj lub <label for="file" class="link" style="cursor:pointer">wybierz z dysku</label></div>
+    <input id="file" type="file" multiple accept=".pdf,.jpg,.jpeg,.png" hidden>
+    <div id="files" class="files"></div>
+  </div>
 
-    <section class="panel actions">
-      <h2>⚙️ Akcje</h2>
-      <div class="buttons">
-        <button id="btnImgToPdf" class="btn primary">🖨️ JPG/PNG → PDF A4 (dopasuj jak skan)</button>
-        <button id="btnMergePdf" class="btn">🧩 Scal PDF</button>
-        <button id="btnClear" class="btn ghost">🧹 Wyczyść listę</button>
-      </div>
-      <p class="muted small">
-        Uwaga: przetwarzanie dzieje się lokalnie w Twojej przeglądarce (bez wysyłania plików na serwer).
-      </p>
-    </section>
+  <div class="card">
+    <h2>2) Akcje</h2>
+    <div class="btns">
+      <button id="toPdf" class="btn primary">🖨️ JPG/PNG → PDF A4 (dopasuj jak skan)</button>
+      <button id="merge" class="btn">🧩 Scal PDF</button>
+      <button id="clear" class="btn">🧹 Wyczyść listę</button>
+    </div>
+    <p class="sub small">Uwaga: wszystko liczy się lokalnie i nie opuszcza Twojej przeglądarki.</p>
+  </div>
 
-    <section class="panel">
-      <h2>⬇️ Wynik</h2>
-      <div id="output"></div>
-    </section>
-  </main>
+  <div class="card">
+    <h2>3) Wynik</h2>
+    <div id="out"></div>
+  </div>
 
-  <footer class="footer">
-    <span>© 2025 DinoFiles • 100 narzędzi w 1 • Ta wersja działa w pełni w przeglądarce (demo).</span>
-  </footer>
+  <p class="footer">© 2025 DinoFiles • Wersja demo UI (bez serwera). PDF-y generowane przy pomocy <a href="https://pdf-lib.js.org/" target="_blank" class="link">pdf-lib</a>.</p>
+</div>
 
-  <!-- pdf-lib from CDN -->
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="/app.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+const $ = sel => document.querySelector(sel);
+const drop = $("#drop");
+const fileInput = $("#file");
+const filesBox = $("#files");
+const out = $("#out");
+const btnToPdf = $("#toPdf");
+const btnMerge = $("#merge");
+const btnClear = $("#clear");
+
+let files = [];
+
+function human(bytes){
+  const u=['B','KB','MB','GB']; let i=0,b=bytes;
+  while(b>1024&&i<u.length-1){b/=1024;i++} return b.toFixed(1)+' '+u[i];
+}
+function render(){
+  filesBox.innerHTML = '';
+  files.forEach((f,i)=>{
+    const pill = document.createElement('div');
+    pill.className='pill';
+    pill.textContent = (i+1)+'. '+f.name+' ('+human(f.size)+')';
+    filesBox.appendChild(pill);
+  });
+}
+function add(list){
+  const arr = Array.from(list||[]);
+  const acc = arr.filter(f => /pdf|jpeg|jpg|png/i.test(f.type) || /\.pdf$/i.test(f.name));
+  files = files.concat(acc).slice(0,20);
+  render();
+}
+
+drop.addEventListener('dragover', e=>{e.preventDefault(); drop.classList.add('drag')});
+drop.addEventListener('dragleave', ()=> drop.classList.remove('drag'));
+drop.addEventListener('drop', e=>{e.preventDefault(); drop.classList.remove('drag'); add(e.dataTransfer.files)});
+drop.addEventListener('click', ()=> fileInput.click());
+fileInput.addEventListener('change', e=> add(e.target.files));
+btnClear.addEventListener('click', ()=> { files=[]; render(); out.innerHTML=''; });
+
+btnToPdf.addEventListener('click', async ()=>{
+  const imgs = files.filter(f => /jpeg|jpg|png/i.test(f.type));
+  if(imgs.length===0){ alert('Dodaj najpierw JPG/PNG.'); return; }
+  const { PDFDocument, rgb } = PDFLib;
+  const pdf = await PDFDocument.create();
+  for(const f of imgs){
+    const buf = await f.arrayBuffer();
+    let img;
+    if(/png/i.test(f.type)) img = await pdf.embedPng(buf);
+    else img = await pdf.embedJpg(buf);
+    const A4 = { w:595.28, h:841.89 };
+    const page = pdf.addPage([A4.w,A4.h]);
+    // białe tło (jak skan)
+    page.drawRectangle({x:0,y:0,width:A4.w,height:A4.h,color:rgb(1,1,1)});
+    // dopasowanie z marginesem
+    const margin = 24;
+    const maxW = A4.w - margin * 2;
+    const maxH = A4.h - margin * 2;
+    const scale = Math.min(maxW/img.width, maxH/img.height);
+    const w = img.width*scale, h = img.height*scale;
+    const x = (A4.w - w)/2, y = (A4.h - h)/2;
+    page.drawImage(img,{x,y,width:w,height:h});
+  }
+  const bytes = await pdf.save();
+  const url = URL.createObjectURL(new Blob([bytes], {type:'application/pdf'}));
+  out.innerHTML = '<a class="link" download="DinoFiles_A4.pdf" href="'+url+'">⬇️ Pobierz PDF „DinoFiles_A4.pdf”</a>';
+});
+
+btnMerge.addEventListener('click', async ()=>{
+  const pdfs = files.filter(f => /\.pdf$/i.test(f.name));
+  if(pdfs.length<2){ alert('Dodaj co najmniej 2 pliki PDF.'); return; }
+  const { PDFDocument } = PDFLib;
+  const merged = await PDFDocument.create();
+  for(const f of pdfs){
+    const bytes = await f.arrayBuffer();
+    const donor = await PDFDocument.load(bytes);
+    const pages = await merged.copyPages(donor, donor.getPageIndices());
+    pages.forEach(p => merged.addPage(p));
+  }
+  const outBytes = await merged.save();
+  const url = URL.createObjectURL(new Blob([outBytes], {type:'application/pdf'}));
+  out.innerHTML = '<a class="link" download="DinoFiles_Merged.pdf" href="'+url+'">⬇️ Pobierz scalony PDF „DinoFiles_Merged.pdf”</a>';
+});
+</script>
 </body>
 </html>
