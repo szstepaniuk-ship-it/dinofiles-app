@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>DinoFiles v3</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:system-ui,Arial;background:#0b1520;color:#e7f0f8;margin:0;padding:20px}
+h1{margin:0 0 10px}
+.drop{border:2px dashed #3b82f6;padding:30px;text-align:center;border-radius:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:20px}
+.item{background:#111c2d;padding:8px;border-radius:8px}
+.item img{max-width:100%;border-radius:4px}
+button{padding:10px 14px;border-radius:8px;border:none;cursor:pointer}
+.primary{background:#22c55e;color:#04210f;font-weight:700}
+</style>
+</head>
+<body>
+<h1>🦖 DinoFiles v3</h1>
+<p>Dodawaj wiele plików (JPG/PNG/PDF), zmieniaj kolejność i generuj PDF A4.</p>
+
+<div class="drop">
+<input id="files" type="file" multiple accept=".jpg,.jpeg,.png,.pdf">
+</div>
+
+<div class="grid" id="grid"></div>
+
+<button class="primary" id="makePdf">JPG/PNG → PDF A4</button>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+const grid=document.getElementById("grid");
+const input=document.getElementById("files");
+let files=[];
+
+input.onchange=e=>{
+  for(const f of e.target.files){files.push(f)}
+  render();
+};
+
+function render(){
+  grid.innerHTML="";
+  files.forEach((f,i)=>{
+    const d=document.createElement("div");
+    d.className="item";
+    d.draggable=true;
+    d.ondragstart=ev=>ev.dataTransfer.setData("i",i);
+    d.ondragover=ev=>ev.preventDefault();
+    d.ondrop=ev=>{
+      const from=ev.dataTransfer.getData("i");
+      const tmp=files[from];
+      files[from]=files[i];
+      files[i]=tmp;
+      render();
+    };
+    if(f.type.startsWith("image")){
+      const img=document.createElement("img");
+      img.src=URL.createObjectURL(f);
+      d.appendChild(img);
+    }
+    d.appendChild(document.createTextNode(f.name));
+    grid.appendChild(d);
+  });
+}
+
+document.getElementById("makePdf").onclick=async()=>{
+  const imgs=files.filter(f=>f.type.startsWith("image"));
+  if(!imgs.length){alert("Brak zdjęć");return;}
+  const pdf=await PDFLib.PDFDocument.create();
+  for(const f of imgs){
+    const buf=await f.arrayBuffer();
+    const img=f.type.includes("png")?await pdf.embedPng(buf):await pdf.embedJpg(buf);
+    const page=pdf.addPage([595,842]);
+    const scale=Math.min(550/img.width,780/img.height);
+    page.drawImage(img,{x:(595-img.width*scale)/2,y:(842-img.height*scale)/2,width:img.width*scale,height:img.height*scale});
+  }
+  const bytes=await pdf.save();
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([bytes],{type:"application/pdf"}));
+  a.download="DinoFiles_A4.pdf";
+  a.click();
+};
+</script>
+</body>
+</html>
